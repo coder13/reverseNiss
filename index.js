@@ -20,19 +20,19 @@ const Blocks = [{
 }, {
 	name: 'DLB',
 	corners: [4],
-	edges: [4,10,11]
+	edges: [4,11,8]
 }, {
 	name: 'DBR',
 	corners: [5],
-	edges: [5,9,10]
-}, {
-	name: 'DLB',
-	corners: [6],
-	edges: [4,8,9]
+	edges: [5,8,9]
 }, {
 	name: 'DBR',
+	corners: [6],
+	edges: [6,9,10]
+}, {
+	name: 'DLB',
 	corners: [7],
-	edges: [5,11,8]
+	edges: [7,10,11]
 }];
 
 const getData = function (cubeState) {
@@ -75,34 +75,54 @@ const getData = function (cubeState) {
 	}
 }
 
+const printData = function (moves) {
+	let cube = Three.fromAlg(moves);
+	let data = getData(cube);
+
+	let num = x => colors.blue(x);
+
+	console.log()
+
+	console.log(`Corners:`);
+	console.log(` - ${num(data.corners.solved)} solved`);
+	console.log(` - ${num(data.corners.flipped)} flipped`);
+
+	console.log(`Edges:`);
+	console.log(` - ${num(data.edges.solved)} solved`);
+	console.log(` - ${num(data.edges.flipped)} flipped`);
+
+	console.log('EO:');
+	console.log(` - FB: ${num(data.eo.FB)} flipped`);
+
+	let cube2 = Three.fromAlg(`y ${moves} y'`);
+
+	console.log(` - RL: ${num(getData(cube2).eo.FB)} flipped`);
+
+	let cube3 = Three.fromAlg(`x ${moves} x'`);
+	console.log(` - UD: ${num(getData(cube2).eo.FB)} flipped`);
+	console.log(`Blocks: ${data.blocks.length ? data.blocks.map(num).join(', ') : 'none'}`)
+}
+
 let scramble = "R F2 R2 B2 L2 B D2 R2 D2 L2 B' U L U' B2 D2 U2 F U'";
 let solution = "U D2 R L B2 L' D'";
-let cube = Three.fromAlg(scramble + " " + solution);
 
-console.log('Scramble: ' + scramble);
-console.log('Solution: ' + solution);
+console.log('moves:');
+console.log('scramble: ' + colors.green(scramble));
+console.log('solution: ' + colors.blue(solution));
 
-let data = getData(cube);
+printData(scramble + solution);
 
-let num = x => colors.blue(x);
+let A = solution, B = '';
 
-console.log()
+while (A.trim() !== '') {
 
-console.log(`Corners:`);
-console.log(` - ${num(data.corners.solved)} solved`);
-console.log(` - ${num(data.corners.flipped)} flipped`);
+	B = A.split(' ').slice(-1).concat(B.split(' ')).join(' ').trim();
+	A = A.split(' ').slice(0,-1).join(' ');
 
-console.log(`Edges:`);
-console.log(` - ${num(data.edges.solved)} solved`);
-console.log(` - ${num(data.edges.flipped)} flipped`);
+	console.log('\nmoves:')
+	console.log(`B: ${colors.blue(B)}`);
+	console.log(`S: ${colors.green(scramble)}`)
+	console.log(`A: ${colors.blue(A)}`)
 
-console.log('EO:');
-console.log(` - FB: ${num(data.eo.FB)} flipped`);
-
-let cube2 = Three.fromAlg(`y ${scramble} y'`);
-
-console.log(` - RL: ${num(getData(cube2).eo.FB)} flipped`);
-
-let cube3 = Three.fromAlg(`x ${scramble} x'`);
-console.log(` - UD: ${num(getData(cube2).eo.FB)} flipped`);
-console.log(`Blocks: ${data.blocks ? data.blocks.map(num).join(', ') : 'none'}`)
+	printData(B + scramble + A);
+}
